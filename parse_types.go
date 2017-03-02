@@ -7,7 +7,7 @@ package	goParseBSV
 
 import (
 	// golang packages
-	// -- none --
+	"os"
 )
 
 // ================================================================
@@ -25,6 +25,9 @@ func ParseTypeExpr (lexer *Lexer) (AST) {
 		GetToken (lexer)
 		return & ast
 
+        } else if TokenIsKeyword (lexer, "function") {
+	       // Function type
+	       return parseFunctionProto (lexer)
 	} else if TokenIsIde (lexer) || TokenIsKeyword (lexer, "module") {
 		// Constructed type
 		return ParseTypeConstructed (lexer)
@@ -33,6 +36,36 @@ func ParseTypeExpr (lexer *Lexer) (AST) {
 		var ast AST
 		return ast
 	}
+}
+
+// ParseFunctionProto parses 'function type name (type formal, ..., type formal)'
+// Current token is 'function' keyword
+func parseFunctionProto (lexer *Lexer) (*AstFunctionProto) {
+	debugPrint (os.Stdout, "ParseFunctionProto ... ", nil, "\n")
+
+	var astFunctionProto AstFunctionProto
+
+	// Skip past 'function' keyword
+	GetToken (lexer)
+
+	astFunctionProto.ResultType = ParseTypeExpr (lexer)
+	debugPrint (os.Stdout, "ParseFunctionProto ResultType: ", astFunctionProto.ResultType, "\n")
+
+	astFunctionProto.Name       = ParseVarIde (lexer)
+	debugPrint (os.Stdout, "ParseFunctionProto Name ", astFunctionProto.Name, "\n")
+
+	if skipPunctuationOpt (lexer, "(") {
+		for {
+			if skipPunctuationOpt (lexer, ")") { break }
+			astFunctionProto.FormalTypes = append (astFunctionProto.FormalTypes, ParseTypeExpr (lexer))
+			astFunctionProto.Formals     = append (astFunctionProto.Formals,     ParseVarIde (lexer))
+			if ! TokenIsSpecificPunctuation (lexer, ")") {
+				skipPunctuationMust (lexer, ",")
+			}
+		}
+	}
+
+	return & astFunctionProto
 }
 
 func ParseTypeConstructed (lexer *Lexer) (AST) {

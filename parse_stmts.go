@@ -239,35 +239,6 @@ func ParseRule (lexer *Lexer) (AST) {
 	return result
 }
 
-// ParseFunctionProto parses 'function type name (type formal, ..., type formal)'
-// Current token is 'function' keyword
-func parseFunctionProto (lexer *Lexer) (*AstFunctionProto) {
-	debugPrint (os.Stdout, "ParseFunctionProto ... ", nil, "\n")
-
-	var astFunctionProto AstFunctionProto
-
-	// Skip past 'function' keyword
-	GetToken (lexer)
-
-	astFunctionProto.ResultType = ParseTypeExpr (lexer)
-	debugPrint (os.Stdout, "ParseFunctionProto ResultType: ", astFunctionProto.ResultType, "\n")
-
-	astFunctionProto.Name       = ParseVarIde (lexer)
-	debugPrint (os.Stdout, "ParseFunctionProto Name ", astFunctionProto.Name, "\n")
-
-	if skipPunctuationOpt (lexer, "(") {
-		for {
-			if skipPunctuationOpt (lexer, ")") { break }
-			astFunctionProto.FormalTypes = append (astFunctionProto.FormalTypes, ParseTypeExpr (lexer))
-			astFunctionProto.Formals     = append (astFunctionProto.Formals,     ParseVarIde (lexer))
-			if ! TokenIsSpecificPunctuation (lexer, ")") {
-				skipPunctuationMust (lexer, ",")
-			}
-		}
-	}
-
-	return & astFunctionProto
-}
 
 // ParseFunctionDef parses 'function ... endfunction' or 'function ... = e'
 // Current token is 'function' keyword
