@@ -189,7 +189,7 @@ type ifdefStackElem struct {
 	inElse            bool    // If in else arm (therefore illegal to see elsif of else)
 	currentMacro      string  // for error messages: current macro of ifdef/ifndef/elsif
 }
-	
+
 func pushIfdefStack (lexer *Lexer, elem ifdefStackElem) () {
 	lexer.ifdefStack = append (lexer.ifdefStack, elem)
 	// fmt.Fprintf (os.Stdout, "pushIfdefStack: new stack is %v\n", lexer.ifdefStack)
@@ -649,6 +649,28 @@ func GetToken (lexer *Lexer) () {
 		lexer.Token.TokType = TokOther
 		lexer.Token.StringVal = string (lexer.ch)
 		getchar (lexer, true)
+	}
+	// Parse operator identifiers such as: \== , \<, \+, etc.
+        case lexer.ch == '\\': {
+		lexer.Token.TokType = TokIde
+		lexer.Token.StringVal = "";
+		for {
+		    getchar(lexer, true)
+		    if ByteIsWhitespace (lexer.ch) {
+		      if lexer.Token.StringVal == "" {
+			fmt.Fprintf (os.Stderr, "ERROR: Unexpected character '\\'\n")
+			printLocation (os.Stderr, lexer, "")
+			os.Exit (1)
+		      }
+		      break;
+		    } else if strings.IndexByte ("=<>+-*/%^~!&|", lexer.ch) != -1 {
+		      lexer.Token.StringVal += string(lexer.ch)
+		    } else {
+		      fmt.Fprintf (os.Stderr, "ERROR: Unexpected character in operator identifier %c\n", lexer.ch)
+		      printLocation (os.Stderr, lexer, "")
+		      os.Exit (1)
+		    }
+		}
 	}
 	case lexer.ch == '.': {
 		lexer.Token.TokType = TokOther
