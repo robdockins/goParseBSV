@@ -26,8 +26,10 @@ func ParseTypeExpr (lexer *Lexer) (AST) {
 		return & ast
 
         } else if TokenIsKeyword (lexer, "function") {
-	       // Function type
-	       return parseFunctionProto (lexer)
+	        // Function type
+		proto := parseFunctionProto (lexer)
+		ast := AstTypeFunction{ proto }
+		return ast
 	} else if TokenIsIde (lexer) || TokenIsKeyword (lexer, "module") {
 		// Constructed type
 		return ParseTypeConstructed (lexer)

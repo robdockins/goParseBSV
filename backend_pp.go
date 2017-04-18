@@ -131,6 +131,13 @@ func (ast *AstTypeNum) pp (fout *os.File, indent string) {
 	fmt.Fprintf (fout, "(AstTypeNum %d)", ast.LeafValue.IntVal)
 }
 
+func (ast AstTypeFunction) pp (fout *os.File, indent string) {
+        fmt.Fprintf (fout, "(AstTypeFunction")
+	indent2 := indent + "  "
+	ast.TypeFunc.pp( fout, indent2 )
+	fmt.Fprintf (fout, "\n" + indent + ")")
+}
+
 // AstTypeVar is a BSV type variable (identifier with lowercase first letter)
 // E.g.,  "t"
 func (ast *AstTypeVar) pp (fout *os.File, indent string) {
@@ -385,7 +392,11 @@ func (ast *AstVarInit) pp (fout *os.File, indent string) () {
 	fmt.Fprintf (fout, "\n" + indent2)
 	ppKind (ast.Kind, fout, indent2)
 	fmt.Fprintf (fout, "\n" + indent2)
-	conv (ast.Init).pp (fout, indent2)
+	if( ast.Init != nil ) {
+	  conv (ast.Init).pp (fout, indent2)
+        } else {
+	  conv (ast.Ide).pp (fout, indent2)
+	}
 	fmt.Fprintf (fout, "\n" + indent + ")")
 }
 

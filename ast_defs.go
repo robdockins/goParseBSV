@@ -52,6 +52,11 @@ type AstTypeConstructed struct {
 	Args         [] AST
 }
 
+// AstTypeFunction is a function type
+type AstTypeFunction struct {
+        TypeFunc     *AstFunctionProto
+}
+
 // AstTypedefDefinedAsStruct is a BSV "struct { type field; ... ; type field }"
 type AstTypedefDefinedAsStruct struct {
 	StructMemberNames  [] *AstIde
