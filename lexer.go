@@ -96,7 +96,7 @@ func NewLexer (inputFilename string, macros []string, ftrace *os.File) (*Lexer) 
 	var err  error
 	if inputFilename == "-" {
 		fin = os.Stdin
-		fmt.Fprintf (os.Stdout, "Taking input from stdin\n")
+		//fmt.Fprintf (os.Stderr, "Taking input from stdin\n")
 	} else {
 		fin, err = os.Open (inputFilename)
 		if err != nil {
@@ -104,7 +104,7 @@ func NewLexer (inputFilename string, macros []string, ftrace *os.File) (*Lexer) 
 			fmt.Fprintf (os.Stderr, "%v\n", err)
 			os.Exit (1)
 		}
-		fmt.Fprintf (os.Stdout, "Taking input from file %q\n", inputFilename)
+		//fmt.Fprintf (os.Stderr, "Taking input from file %q\n", inputFilename)
 	}
 
 	var lexer = new (Lexer)
@@ -140,7 +140,7 @@ func pushLexer (inputFilename string, lexer *Lexer) () {
 		fmt.Fprintf (os.Stderr, "%v\n", err)
 		os.Exit (1)
 	}
-	fmt.Fprintf (os.Stdout, "Taking input from included file: %q\n", inputFilename)
+	//fmt.Fprintf (os.Stderr, "Taking input from included file: %q\n", inputFilename)
 
 	var pushedLexer = new (Lexer)
 
@@ -172,8 +172,8 @@ func pushLexer (inputFilename string, lexer *Lexer) () {
 // Restores the lexer to the `include parent from the prevLexer stack.
 func popLexer (lexer *Lexer) () {
 	pushedLexer := lexer.prevLexer
-	fmt.Fprintf (os.Stdout, "Finished included file  : %q\n", lexer.filename)
-	fmt.Fprintf (os.Stdout, "Resuming input from file: %q\n", pushedLexer.filename)
+	//fmt.Fprintf (os.Stdout, "Finished included file  : %q\n", lexer.filename)
+	//fmt.Fprintf (os.Stdout, "Resuming input from file: %q\n", pushedLexer.filename)
 
 	// Copy contents of pushedLexer into lexer
 	*lexer = *pushedLexer
@@ -498,7 +498,7 @@ func GetToken (lexer *Lexer) () {
 					getchar (lexer, true)
 					if (lexer.ch == 0) {
 						fmt.Printf ("WARNING: '//' comment ends in end-of-file\n")
-						printLocation (os.Stdout, lexer, "")
+						printLocation (os.Stderr, lexer, "")
 						break
 					} else if lexer.ch == '\n' {
 						getchar (lexer, true)
@@ -511,7 +511,7 @@ func GetToken (lexer *Lexer) () {
 					getchar (lexer, true)
 					if lexer.ch == 0 {
 						fmt.Printf ("WARNING: '/*' comment ends in end-of-file\n")
-						printLocation (os.Stdout, lexer, "")
+						printLocation (os.Stderr, lexer, "")
 						break
 					} else if lexer.ch == '*' {
 						getchar (lexer, false)
@@ -630,11 +630,11 @@ func GetToken (lexer *Lexer) () {
 				case 'r': { lexer.Token.StringVal += "\r" }
 				case 't': { lexer.Token.StringVal += "\t" }
 				default:  {
-					fmt.Fprintf (os.Stdout,
+					fmt.Fprintf (os.Stderr,
 						"WARNING: Unrecognized \\-escaped char '%c' (= %0d), taking it as-is\n",
 						lexer.ch,
 						lexer.ch)
-					printLocation (os.Stdout, lexer, "")
+					printLocation (os.Stderr, lexer, "")
 					lexer.Token.StringVal += string (lexer.ch)
 				}
 				}

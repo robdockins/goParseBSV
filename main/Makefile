@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	go build -o goParseBSV  github.com/rsnikhil/goParseBSV/main
+	go build -o goParseBSV
 
 .PHONY: clean
 clean:
